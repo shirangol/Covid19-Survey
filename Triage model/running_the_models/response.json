@@ -1,1 +1,1 @@
-{"gender":true,"age":75,"condition_any":true,"symptom_well":true,"symptom_sore_throat":true,"symptom_cough":true,"symptom_shortness_of_breath":true,"symptom_smell_or_taste_loss":true,"symptom_fever":true}
+{"gender":true,"age":75,"condition_any":false,"symptom_well":false,"symptom_sore_throat":false,"symptom_cough":false,"symptom_shortness_of_breath":false,"symptom_smell_or_taste_loss":false,"symptom_fever":false}

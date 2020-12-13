@@ -1,5 +1,7 @@
 import pandas as pd
 from xgboost import XGBClassifier
+import pickle
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_predict, GridSearchCV
 
@@ -15,20 +17,26 @@ def create_model_from_dataset(model, X, y, cv=4, **kwargs):
     return clf, y_pred
 
 
-def create_model_without_validation(model, dataset, x_cols, baseline_x_cols, random_state=10, **kwargs):
+def create_model_without_validation(model, dataset, x_cols, baseline_x_cols, random_state=10, model_name="primary",**kwargs):
 
     X = dataset[x_cols].sort_index(axis=1)
     y = dataset['label'].values.ravel()
 
     fit_model, y_pred_vali = create_model_from_dataset(model, X, y, random_state=random_state, **kwargs)
+    if model==XGBClassifier:
+        file_name='../running_the_models/xgboost_'+model_name+'_model.pkl'
+    else:
+        file_name='../running_the_models/logistic_'+model_name+'_model.pkl'
 
+    with open(file_name, 'wb') as handle:
+        pickle.dump(fit_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
     # base model
     X_base = dataset[baseline_x_cols].sort_index(axis=1)
 
     fit_model_base, y_pred_vali_base = create_model_from_dataset(model, X_base, y, random_state=random_state, **kwargs)
 
 
-def create_model_grid_search_cv(model, dataset, x_cols, baseline_x_cols, random_state=10, **kwargs):
+def create_model_grid_search_cv(model, dataset, x_cols, baseline_x_cols, random_state=10,model_name="primary", **kwargs):
 
     X = dataset[x_cols].sort_index(axis=1)
     y = dataset['label'].values.ravel()
@@ -39,7 +47,16 @@ def create_model_grid_search_cv(model, dataset, x_cols, baseline_x_cols, random_
 
     X_base = dataset[baseline_x_cols].sort_index(axis=1)
 
-    _, y_pred_vali_base = create_model_from_dataset(model, X_base, y, random_state=random_state)
+    # _, y_pred_vali_base = create_model_from_dataset(model, X_base, y, random_state=random_state)
+    _, y_pred_vali_base = create_model_from_dataset(model, X, y, random_state=random_state)
+
+    if model==XGBClassifier:
+        file_name='../running_the_models/xgboost_'+model_name+'_model.pkl'
+    else:
+        file_name='../running_the_models/logistic_'+model_name+'_model.pkl'
+
+    with open(file_name, 'wb') as handle:
+        pickle.dump(_, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 if __name__ == '__main__':
@@ -55,7 +72,7 @@ if __name__ == '__main__':
               'symptom_smell_or_taste_loss',
               'symptom_fever',
               'condition_any']
-    data = pd.read_csv('simulated_data.csv')
+    data = pd.read_csv('primary model.csv')
     if model == XGBClassifier:
         create_model_grid_search_cv(model=model, dataset=data, x_cols=X_COLS, baseline_x_cols=BASE_MODEL_X_COLS, **search_params)
     else:
@@ -85,8 +102,8 @@ if __name__ == '__main__':
               'condition_kidney_disease',
               'condition_cancer',
               'condition_immune_system_suppression']
-    data = pd.read_csv('simulated_data.csv')
+    data = pd.read_csv('extended features model.csv')
     if model == XGBClassifier:
-        create_model_grid_search_cv(model=model, dataset=data, x_cols=X_COLS, baseline_x_cols=BASE_MODEL_X_COLS, **search_params)
+        create_model_grid_search_cv(model=model, dataset=data, x_cols=X_COLS, baseline_x_cols=BASE_MODEL_X_COLS,model_name="extended", **search_params)
     else:
-        create_model_without_validation(model=model, dataset=data, x_cols=X_COLS, baseline_x_cols=BASE_MODEL_X_COLS)
+        create_model_without_validation(model=model, dataset=data, x_cols=X_COLS, baseline_x_cols=BASE_MODEL_X_COLS,model_name="extended")
