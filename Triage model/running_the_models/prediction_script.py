@@ -8,7 +8,7 @@ import matplotlib.pyplot as pl
 shap.initjs()
 
 json_path = "response.json"
-model_path = "xgboost_model.pickle"
+model_path = "xgboost_primary_model.pkl"
 
 AGE_GROUP_CUTOFFS = [0, 17, 30, 40, 50, 60, 70, 120]
 AGE_GROUPS_TRANSFORMER = {1: 10, 2: 25, 3: 35, 4: 45, 5: 55, 6: 65, 7: 75}
@@ -36,7 +36,7 @@ def get_prediction(json_path, model_path):
 
 
 if __name__ == '__main__':
-    # print("The response probability to test positive according to our model is:", get_prediction(json_path, model_path))
+    print("The response probability to test positive according to our model is:", get_prediction(json_path, model_path))
     model = pickle.load(open('xgboost_primary_model.pkl', "rb"))
     explainer = shap.TreeExplainer(model)
     data = pd.read_csv('../creating_the_models/primary model.csv')
@@ -53,6 +53,6 @@ if __name__ == '__main__':
     y = data['label'].values.ravel()
     shap_values = explainer.shap_values(X)
     shap.force_plot(explainer.expected_value, shap_values[0, :], X.iloc[0, :])
-    # shap.summary_plot(shap_values, X)
+    shap.summary_plot(shap_values, X)
 
 
